@@ -26,7 +26,6 @@ void removeData();
 void birthDate(int& month, int& day, int& year);
 int computeAge(int birthYear, int birthMonth, int birthDay);
 
-
 int main(){
 
     MYSQL* conn;
@@ -46,10 +45,10 @@ int main(){
             cout << "|                                |" << endl;
             cout << "+================================+" << endl;
             cout << endl;
-            cout << "         Select operation         " << endl;
-            cout << "          [1] Log in              " << endl;;
-            cout << "          [2] Register            "<< endl;;
-            cout << "          [0] Exit                " << endl;
+            cout << "Select operation         " << endl;
+            cout << "[1] Log in              " << endl;;
+            cout << "[2] Register            "<< endl;;
+            cout << "[0] Exit                " << endl;
             cout << "\n > "; cin >> choice1;
 
             switch(choice1)
@@ -75,11 +74,11 @@ int main(){
             cout << "|       STUDENT DATABASE MANAGER           |" << endl;
             cout << "+------------------------------------------+" << endl;
             cout << endl;
-            cout << "    [1] Register Student's Infomation     " << endl;
-            cout << "    [2] Update Student's Infomation       " << endl;
-            cout << "    [3] Delete Student's Infomation       " << endl;
-            cout << "    [4] View Table                        " << endl;
-            cout << "    [0] Log out                           " << endl;
+            cout << "[1] Register Student's Infomation     " << endl;
+            cout << "[2] Update Student's Infomation       " << endl;
+            cout << "[3] Delete Student's Infomation       " << endl;
+            cout << "[4] View Table                        " << endl;
+            cout << "[0] Log out                           " << endl;
             cout << "\n > "; cin >> choice2;
             cout << "\n";
 
@@ -124,11 +123,13 @@ bool Login(){
     conn = mysql_real_connect(conn,ip_address,username, password, database,0,NULL,0);
 
     if(conn){
-        cout << "Database Connected Successfully!\n" << endl;
+        cout << "\nDatabase Connected Successfully!\n" << endl;
+        Sleep(1500);
         return true;
     }
     else{
          cout << "Failed to Connect Database.\n" << endl;
+         Sleep(2000);
         return false;
     }
 }
@@ -169,41 +170,10 @@ void insertData(){
     int month, day, year;
     cin.ignore();
 
-    //cout << "Student ID: ";
-    //getline(cin, stud_id);
-
-    bool uniqueId = false;
-    while (!uniqueId) {
-        system("cls");
-        cout << "Student ID: ";
-        getline(cin, stud_id);
-
-        stringstream idCheckQuery;
-        idCheckQuery << "SELECT COUNT(*) FROM student WHERE student_id = '" << stud_id << "'";
-        string idCheckQueryString = idCheckQuery.str();
-        const char* idCheckQueryStr = idCheckQueryString.c_str();
-
-        int idCheckResult = mysql_query(conn, idCheckQueryStr);
-        if (idCheckResult == 0) {
-            MYSQL_RES* result = mysql_store_result(conn);
-            MYSQL_ROW row = mysql_fetch_row(result);
-            int count = stoi(row[0]);
-
-            if (count == 0) {
-                uniqueId = true;
-            } else {
-                cout << "\nStudent ID already exists.\n" << endl;
-            }
-        } else {
-            cerr << "Error checking student ID: " << mysql_error(conn) << endl;
-            return;
-        }
-    }
-
     system("cls");
-    cout << "Student's First Name: ";
+    cout << "Student's First Name : ";
     getline(cin, f_name);
-    cout << "Student's Last Name: ";
+    cout << "Student's Last Name  : ";
     getline(cin, l_name);
     cout << "Student's Middle Name: ";
     getline(cin,m_name);
@@ -221,7 +191,7 @@ void insertData(){
     //cout << "Age: ";
     int age = computeAge(year, month, day);
 
-    ss << "INSERT INTO student(student_id,first_name,last_name,middle_name,birth_date,age,contact) VALUES ('"<<stud_id<<"', '"<<f_name<<"', '"<<l_name<<"', '"<<m_name<<"', '"<<bday<<"', '"<<age<<"', '"<<contact<<"')";
+    ss << "INSERT INTO student(first_name,last_name,middle_name,birth_date,age,contact) VALUES ('"<<f_name<<"', '"<<l_name<<"', '"<<m_name<<"', '"<<bday<<"', '"<<age<<"', '"<<contact<<"')";
 
     string query = ss.str();
     const char* q = query.c_str();
@@ -280,29 +250,60 @@ void editData(){
     case 2:
         int choice1,choice2;
         string column, new_val, id;
-        cout << "  Edit column     " << endl;
-        cout << "------------------" << endl;
-        cout << "  [1] First name" << endl;
-        cout << "  [2] Last name"  << endl;
-        cout << "  [3] Middle name"<< endl;
-        cout << "  [4] Contact"    << endl;
-        cout << "  [5] Birth date" << endl;
+        cout << "   Select column   " << endl;
+        cout << "-------------------" << endl;
+        cout << "[1] First name" << endl;
+        cout << "[2] Last name"  << endl;
+        cout << "[3] Middle name"<< endl;
+        cout << "[4] Contact"    << endl;
+        cout << "[5] Birth date" << endl;
         cout << "\n> "; cin >> choice1;
+        if(choice1 >= 6 || choice1 == 0){
+            cout << "Column does not Exist " << endl;
+            Sleep(1500);
+            break;
+        }
         cout << "Select ID: "; cin >> id;
+
+            {
+                stringstream checkQuery;
+                checkQuery << "SELECT * FROM student WHERE student_id = '" << id << "';";
+                string checkQueryString = checkQuery.str();
+                const char* checkQueryChar = checkQueryString.c_str();
+
+                if (mysql_query(conn, checkQueryChar) != 0) {
+                    cerr << "\nError checking student_id existence: " << mysql_error(conn) << endl;
+                    Sleep(2000);
+                    break;
+                }
+
+                MYSQL_RES* result = mysql_store_result(conn);
+                if (mysql_num_rows(result) == 0) {
+                    cout << "\nStudent ID does not exists.\n" << endl;
+                    Sleep(1500);
+                    break;
+                }
+
+                mysql_free_result(result);
+            }
 
         switch(choice1){
         case 1:
-            column = "first_name"; break;
+            column = "first_name";
             cout << "New value: ";cin >> new_val;
+            break;
         case 2:
-            column = "last_name"; break;
+            column = "last_name";
             cout << "New value: ";cin >> new_val;
+            break;
         case 3:
-            column = "middle_name"; break;
+            column = "middle_name";
             cout << "New value: ";cin >> new_val;
+            break;
         case 4:
-            column = "contact"; break;
+            column = "contact";
             cout << "New value: ";cin >> new_val;
+            break;
         case 5:
             int year, day, month;
             string bday;
@@ -323,6 +324,7 @@ void editData(){
             qstate = mysql_query(conn, q2);
             break;
         }
+
         int qstate = 0;
         stringstream ss;
         ss << "UPDATE student SET "<<column<<" = '"<< new_val <<"' WHERE student_id = '"<<id<<"' ;";
@@ -345,7 +347,7 @@ while(loop)
     {
     loop = true;
     int option;
-    string index;
+    string id;
 
     system("cls");
     cout << "+--------------------+" << endl;
@@ -364,11 +366,34 @@ while(loop)
         break;
 
     case 2:
-        cout << "Select ID: "; cin >> index;
+        cout << "Select ID: "; cin >> id;
+
         int qstate = 0;
         stringstream ss;
 
-        ss << "DELETE FROM student WHERE student_id = '"<<index<<"';";
+        ss << "DELETE FROM student WHERE student_id = '"<<id<<"';";
+
+                    {
+                stringstream checkQuery;
+                checkQuery << "SELECT * FROM student WHERE student_id = '" << id << "';";
+                string checkQueryString = checkQuery.str();
+                const char* checkQueryChar = checkQueryString.c_str();
+
+                if (mysql_query(conn, checkQueryChar) != 0) {
+                    cerr << "\nError checking student_id existence: " << mysql_error(conn) << endl;
+                    Sleep(2000);
+                    break;
+                }
+
+                MYSQL_RES* result = mysql_store_result(conn);
+                if (mysql_num_rows(result) == 0) {
+                    cout << "\nStudent ID does not exists.\n" << endl;
+                    Sleep(1500);
+                    break;
+                }
+
+                mysql_free_result(result);
+            }
 
         string query = ss.str();
         const char* q = query.c_str();
@@ -393,9 +418,9 @@ void birthDate(int& month, int& day, int& year){
         cout << "[7] June        [12] December" << endl;
         cout << "------------------------------"<< endl;
         cout << endl;
-        cout << "  Month : "; cin >> month;
-        cout << "  Day   : "; cin >> day;
-        cout << "  Year  : "; cin >> year;
+        cout << "Month : "; cin >> month;
+        cout << "Day   : "; cin >> day;
+        cout << "Year  : "; cin >> year;
         cout << endl;
 
         if (month < 1 || month > 12 || day < 1 || day > 31 || year < 1900 || year > 2100) {
