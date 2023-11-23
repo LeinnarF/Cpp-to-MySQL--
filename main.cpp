@@ -1,3 +1,10 @@
+/* Important!
+
+    query: alter table student modify column student_id int auto_increment;
+
+*/
+
+
 #include <iostream>
 #include <windows.h>
 #include <mysql.h>
@@ -25,6 +32,7 @@ void editData();
 void removeData();
 void birthDate(int& month, int& day, int& year);
 int computeAge(int birthYear, int birthMonth, int birthDay);
+void findData();
 
 int main(){
 
@@ -207,15 +215,15 @@ void viewData(){
     const char* q = "SELECT * FROM student";
     qstate = mysql_query(conn,q);
     result = mysql_store_result(conn);
-    cout << "+----+----------------------+-----------------+-----------------+------------+-----+--------------+\n";
-    cout << "| ID |     First Name       |    Last Name    |   Middle Name   | Birth Date | Age | Contact      |\n";
-    cout << "+----+----------------------+-----------------+-----------------+------------+-----+--------------+\n";
+    cout << "+-----+----------------------+-----------------+-----------------+------------+-----+--------------+\n";
+    cout << "| ID  |     First Name       |    Last Name    |   Middle Name   | Birth Date | Age | Contact      |\n";
+    cout << "+-----+----------------------+-----------------+-----------------+------------+-----+--------------+\n";
     while ((row = mysql_fetch_row(result))) {
-        cout << "| " << std::setw(2) << row[0] << " | " << std::setw(20) << row[1] << " | " << std::setw(15) << row[2]
+        cout << "| " << std::setw(3) << row[0] << " | " << std::setw(20) << row[1] << " | " << std::setw(15) << row[2]
             << " | " << std::setw(15) << row[3] << " | " << std::setw(10) << row[4] << " | " << std::setw(3) << row[5]
             << " | " << std::setw(12) << row[6] << " |\n";
     }
- cout <<    "+----+----------------------+-----------------+-----------------+------------+-----+--------------+\n";
+ cout <<    "+-----+----------------------+-----------------+-----------------+------------+-----+--------------+\n";
     //mysql_free_result(result);
     system("pause");
 }
@@ -424,6 +432,7 @@ void birthDate(int& month, int& day, int& year){
         cout << endl;
 
         if (month < 1 || month > 12 || day < 1 || day > 31 || year < 1900 || year > 2100) {
+                system("cls");
             cerr << "Invalid date. Please enter a valid date.\n" << endl;
         }
     }
@@ -445,4 +454,7 @@ int computeAge(int birthYear, int birthMonth, int birthDay){
     }
 
     return age;
+}
+
+void findData(){
 }
